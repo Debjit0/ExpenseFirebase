@@ -17,20 +17,7 @@ class _AddTnxState extends State<AddTnx> {
   String type = "Expense";
   TextEditingController amtController = TextEditingController();
   TextEditingController noteController = TextEditingController();
-  List<FlSpot> dataSet = [];
-  DateTime today = DateTime.now();
-
-  List<FlSpot> getPlotPoints(Map entireData) {
-    dataSet = [];
-    entireData.forEach((key, value) {
-      if (value['type'] == "Expense" &&
-          (value['date'] as DateTime).month == today.month) {
-        dataSet.add(FlSpot((value['date'] as DateTime).day.toDouble(),
-            (value['amount'] as int).toDouble()));
-      }
-    });
-    return dataSet;
-  }
+  
 
   @override
   Widget build(BuildContext context) {
