@@ -17,8 +17,8 @@ class _AddTnxState extends State<AddTnx> {
   String type = "Expense";
   TextEditingController amtController = TextEditingController();
   TextEditingController noteController = TextEditingController();
-  
 
+//fefef
   @override
   Widget build(BuildContext context) {
     return Scaffold(
