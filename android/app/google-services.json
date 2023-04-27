@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "734053241221",
+    "project_id": "expense-47e4b",
+    "storage_bucket": "expense-47e4b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:734053241221:android:055773cae9d3da896574ec",
+        "android_client_info": {
+          "package_name": "com.debjit.expensefirebase"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "734053241221-10cm87q336bsu2lsmkc0pul0qq76rjso.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.debjit.expensefirebase",
+            "certificate_hash": "7fb8a8d13e23625b28d1af295ba783b95da80e4c"
+          }
+        },
+        {
+          "client_id": "734053241221-o589tikoa1p7ojjuo82gdu1itsdnq499.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCbmBc1Mt9Izpl84BMac0l6yp6tWgHxmWA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "734053241221-o589tikoa1p7ojjuo82gdu1itsdnq499.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
