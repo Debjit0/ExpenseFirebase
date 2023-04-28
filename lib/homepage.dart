@@ -92,7 +92,7 @@ class _HomePageState extends State<HomePage> {
                                 lineBarsData: [
                                   LineChartBarData(
                                     // spots: getPlotPoints(snapshot.data!),
-                                    spots: getPlotPoints(snapshot.data!),
+                                    spots: getPlotPoints(snapshot.data!.docs),
                                     isCurved: false,
                                     barWidth: 3,
                                     color: Colors.deepPurple,
@@ -116,42 +116,41 @@ class _HomePageState extends State<HomePage> {
                             itemBuilder: (context, index) {
                               final txn = data[index];
                               return InkWell(
-                                onLongPress: () async {
-                                  showDialog(
-                                      context: context,
-                                      builder: (ctx) => AlertDialog(
-                                            title: Text("Are you sure?"),
-                                            content: Text(
-                                                "This record will be deleted"),
-                                            actions: [
-                                              TextButton(
+                                  onLongPress: () async {
+                                    showDialog(
+                                        context: context,
+                                        builder: (ctx) => AlertDialog(
+                                              title: Text("Are you sure?"),
+                                              content: Text(
+                                                  "This record will be deleted"),
+                                              actions: [
+                                                TextButton(
+                                                    onPressed: () {
+                                                      Navigator.pop(context);
+                                                    },
+                                                    child: Text("Cancel")),
+                                                TextButton(
                                                   onPressed: () {
+                                                    deleteWallpaper(
+                                                      id: snapshot
+                                                          .data!.docs[index].id,
+                                                      uid: uid,
+                                                    );
                                                     Navigator.pop(context);
+                                                    setState(() {});
                                                   },
-                                                  child: Text("Cancel")),
-                                              TextButton(
-                                                onPressed: () {
-                                                  deleteWallpaper(
-                                                    id: snapshot
-                                                        .data!.docs[index].id,
-                                                    uid: uid,
-                                                  );
-                                                  Navigator.pop(context);
-                                                  setState(() {});
-                                                },
-                                                child: Text("ok"),
-                                              )
-                                            ],
-                                          ));
-                                },
-                                child: Container(
-                                  height: 100,
-                                  color: Colors.red,
-                                  child: Column(
-                                    children: [Text(txn.get("amount"))],
-                                  ),
-                                ),
-                              );
+                                                  child: Text("ok"),
+                                                )
+                                              ],
+                                            ));
+                                  },
+                                  child: Container(
+                                    height: 100,
+                                    color: Colors.red,
+                                    child: Column(
+                                      children: [Text(txn.get("amount"))],
+                                    ),
+                                  ));
                             },
                           ),
                         ],
