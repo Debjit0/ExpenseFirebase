@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:expensefirebase/addtnx.dart';
 import 'package:expensefirebase/utils/routers.dart';
@@ -8,6 +10,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 
 class HomePage extends StatefulWidget {
@@ -18,6 +21,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  int totalBalance = 0;
+  int totalIncome = 0;
+  int totalExpense = 0;
   final CollectionReference tnx =
       FirebaseFirestore.instance.collection("All Transactions");
   Future<void> _handleRefresh() async {
@@ -40,6 +46,25 @@ class _HomePageState extends State<HomePage> {
     return dataSet;
   }
 
+  getTotalBalance(Map entireData) {
+    totalExpense = 0;
+    totalIncome = 0;
+    totalBalance = 0;
+    entireData.forEach((key, value) {
+      //print(value);
+      //print("Total Balance $totalBalance");
+      //print("Total Expense $totalExpense");
+      //print("Total Income $totalIncome");
+      if (value['type'] == 'Income') {
+        totalBalance += (value['amount'] as int);
+        totalIncome += (value['amount'] as int);
+      } else if (value['type'] == 'Expense') {
+        totalBalance -= (value['amount'] as int);
+        totalExpense += (value['amount'] as int);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -59,6 +84,7 @@ class _HomePageState extends State<HomePage> {
                       );
                     } else {
                       final data = snapshot.data!.docs;
+
                       return ListView(
                         children: [
                           /*Container(
@@ -109,12 +135,95 @@ class _HomePageState extends State<HomePage> {
                               ),
                             ),
                           ),*/
+
+                          Container(
+                            width: MediaQuery.of(context).size.width * 0.9,
+                            margin: EdgeInsets.all(12.0),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topRight,
+                                  end: Alignment.bottomLeft,
+                                  colors: [
+                                    Color.fromARGB(255, 156, 250, 255),
+                                    Color.fromARGB(255, 218, 166, 255),
+                                  ],
+                                ),
+                                color: Color.fromARGB(255, 255, 255, 255),
+                                boxShadow: [
+                                  const BoxShadow(
+                                    color: Color.fromARGB(255, 137, 137, 137),
+                                    blurRadius: 20.0,
+                                    offset: Offset(6, 6),
+                                  ),
+                                ],
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(24)),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 20, horizontal: 8),
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      "Total Balance",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                          fontSize: 26,
+                                          color: Color.fromARGB(255, 0, 0, 0),
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    SizedBox(height: 6),
+                                    Text(
+                                      "Rs. $totalBalance",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                          fontSize: 26,
+                                          color: Color.fromARGB(255, 0, 0, 0),
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    SizedBox(
+                                      height: 12,
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.all(8),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          cardIncome(totalIncome.toString()),
+                                          cardExpense(totalExpense.toString()),
+                                        ],
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
                           ListView.builder(
                             physics: NeverScrollableScrollPhysics(),
                             shrinkWrap: true,
                             itemCount: data.length,
                             itemBuilder: (context, index) {
                               final txn = data[index];
+                              totalBalance = 0;
+                              totalIncome = 0;
+                              totalExpense = 0;
+                              for (int i = 0; i < data.length; i++) {
+                                if (data[i].get("type") == "Income") {
+                                  totalBalance +=
+                                      int.parse(data[i].get("amount"));
+                                  totalIncome +=
+                                      int.parse(data[i].get("amount"));
+                                } else if (data[i].get("type") == "Expense") {
+                                  totalBalance -=
+                                      int.parse(data[i].get("amount"));
+                                  totalExpense +=
+                                      int.parse(data[i].get("amount"));
+                                }
+                              }
+                              //log(totalBalance);
                               return InkWell(
                                   onLongPress: () async {
                                     showDialog(
@@ -131,7 +240,7 @@ class _HomePageState extends State<HomePage> {
                                                     child: Text("Cancel")),
                                                 TextButton(
                                                   onPressed: () {
-                                                    deleteWallpaper(
+                                                    deleteTnx(
                                                       id: snapshot
                                                           .data!.docs[index].id,
                                                       uid: uid,
@@ -144,13 +253,19 @@ class _HomePageState extends State<HomePage> {
                                               ],
                                             ));
                                   },
-                                  child: Container(
-                                    height: 100,
-                                    color: Colors.red,
-                                    child: Column(
-                                      children: [Text(txn.get("amount"))],
-                                    ),
-                                  ));
+                                  child: (txn.get("type") == "Income")
+                                      ? incomeTile(
+                                          txn.get("amount"),
+                                          txn.get("note"),
+                                          txn.get("date"),
+                                          txn.get("type"),
+                                          "Food")
+                                      : expenseTile(
+                                          txn.get("amount"),
+                                          txn.get("note"),
+                                          txn.get("date"),
+                                          txn.get("type"),
+                                          "Food"));
                             },
                           ),
                         ],
@@ -170,7 +285,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void deleteWallpaper({@required String? id, @required String? uid}) async {
+  void deleteTnx({@required String? id, @required String? uid}) async {
     print(uid);
     print(id);
 
@@ -185,5 +300,255 @@ class _HomePageState extends State<HomePage> {
     } catch (e) {
       print(e);
     }
+  }
+
+  Widget cardIncome(String value) {
+    return Container(
+      width: 140,
+      padding: EdgeInsets.all(8),
+      decoration: BoxDecoration(
+          color: Color.fromARGB(255, 162, 249, 165),
+          borderRadius: BorderRadius.circular(10)),
+      //color: Colors.green,
+      child: InkWell(
+        onTap: (() {}),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: Color.fromARGB(255, 45, 45, 45),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              padding: EdgeInsets.all(6),
+              child: Icon(
+                Icons.arrow_downward,
+                size: 28,
+                color: Colors.green,
+              ),
+              margin: EdgeInsets.only(right: 8),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Income",
+                  style: TextStyle(
+                      fontSize: 18,
+                      color: Color.fromARGB(255, 0, 0, 0),
+                      fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  value,
+                  style: TextStyle(
+                      fontSize: 18,
+                      color: Color.fromARGB(255, 0, 0, 0),
+                      fontWeight: FontWeight.bold),
+                ),
+              ],
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget cardExpense(String value) {
+    return Container(
+      width: 140,
+      padding: EdgeInsets.all(8),
+      decoration: BoxDecoration(
+          color: Color.fromARGB(255, 250, 150, 142),
+          borderRadius: BorderRadius.circular(10)),
+      child: InkWell(
+        onTap: (() {}),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  "Expense",
+                  style: TextStyle(
+                      fontSize: 18,
+                      color: Color.fromARGB(255, 0, 0, 0),
+                      fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  value,
+                  style: TextStyle(
+                      fontSize: 18,
+                      color: Color.fromARGB(255, 0, 0, 0),
+                      fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            Container(
+              decoration: BoxDecoration(
+                color: Color.fromARGB(255, 45, 45, 45),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              padding: EdgeInsets.all(6),
+              child: Icon(
+                Icons.arrow_upward,
+                size: 28,
+                color: Colors.red,
+              ),
+              margin: EdgeInsets.only(left: 8),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget expenseTile(
+      String value, String note, String date, String type, String category) {
+    return Container(
+      margin: EdgeInsets.fromLTRB(8, 12, 8, 12),
+      padding: EdgeInsets.all(15),
+      decoration: BoxDecoration(
+        boxShadow: [
+          const BoxShadow(
+            color: Color.fromARGB(255, 137, 137, 137),
+            blurRadius: 20.0,
+            offset: Offset(6, 6),
+          ),
+        ],
+        color: Color.fromARGB(255, 255, 255, 255),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          Row(
+            children: [
+              if (category == "Food")
+                Icon(
+                  Icons.fastfood_outlined,
+                  size: 28,
+                  color: Colors.red,
+                ),
+              if (category == "Travel")
+                Icon(
+                  Icons.train_outlined,
+                  size: 28,
+                  color: Colors.red,
+                ),
+              if (category == "Clothing")
+                Icon(
+                  Icons.shopping_bag_outlined,
+                  size: 28,
+                  color: Colors.red,
+                ),
+              if (category == "Rent")
+                Icon(
+                  Icons.house_outlined,
+                  size: 28,
+                  color: Colors.red,
+                ),
+              if (category == "Misc")
+                Icon(
+                  Icons.miscellaneous_services_outlined,
+                  size: 28,
+                  color: Colors.red,
+                ),
+              /*
+              Icon(
+                Icons.arrow_circle_up_rounded,
+                size: 28,
+                color: Colors.red,
+              ),
+              */
+              SizedBox(
+                width: 4.0,
+              ),
+              Text(
+                "$note",
+                style: TextStyle(
+                    fontSize: 20,
+                    color: Color.fromARGB(255, 0, 0, 0),
+                    fontWeight: FontWeight.bold),
+              ),
+              SizedBox(
+                width: 10,
+              ),
+              Text(
+                "$date",
+                style: TextStyle(
+                    fontSize: 20,
+                    color: Colors.grey,
+                    fontWeight: FontWeight.normal),
+              ),
+            ],
+          ),
+          Text(
+            "-$value",
+            style: TextStyle(
+                fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget incomeTile(
+      String value, String note, String date, String type, String category) {
+    //container
+    return Container(
+      margin: EdgeInsets.fromLTRB(8, 12, 8, 12),
+      padding: EdgeInsets.all(15),
+      decoration: BoxDecoration(
+        color: Color.fromARGB(255, 255, 255, 255),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Color.fromARGB(255, 137, 137, 137),
+            blurRadius: 20.0,
+            offset: Offset(6, 6),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.arrow_circle_down_rounded,
+                size: 28,
+                color: Colors.green,
+              ),
+              const SizedBox(
+                width: 4.0,
+              ),
+              Text(
+                "$note",
+                style: TextStyle(
+                    fontSize: 20,
+                    color: Color.fromARGB(255, 0, 0, 0),
+                    fontWeight: FontWeight.bold),
+              ),
+              SizedBox(
+                width: 10,
+              ),
+              Text(
+                "$date",
+                style: TextStyle(
+                    fontSize: 20,
+                    color: Colors.grey,
+                    fontWeight: FontWeight.normal),
+              ),
+            ],
+          ),
+          Text(
+            "+$value",
+            style: TextStyle(
+                fontSize: 20, fontWeight: FontWeight.bold, color: Colors.green),
+          ),
+        ],
+      ),
+    );
   }
 }
