@@ -61,7 +61,7 @@ class _HomePageState extends State<HomePage> {
                       final data = snapshot.data!.docs;
                       return ListView(
                         children: [
-                          Container(
+                          /*Container(
                             height: 200.0,
                             padding: EdgeInsets.symmetric(
                               vertical: 10.0,
@@ -108,7 +108,7 @@ class _HomePageState extends State<HomePage> {
                                 ],
                               ),
                             ),
-                          ),
+                          ),*/
                           ListView.builder(
                             physics: NeverScrollableScrollPhysics(),
                             shrinkWrap: true,
