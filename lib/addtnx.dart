@@ -78,7 +78,8 @@ class _AddTnxState extends State<AddTnx> {
                 TransactionProvider().addTnxDb(
                     amt: amtController.text,
                     note: noteController.text,
-                    date: DateFormat.yMMMd().format(selectedDate),
+                    date: selectedDate
+                        .toString() /*DateFormat.yMMMd().format(selectedDate),*/,
                     type: type);
                 nextPageOnly(context: context, page: HomePage());
                 setState(() {});

@@ -1,5 +1,5 @@
 import 'dart:math';
-
+import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:expensefirebase/addtnx.dart';
 import 'package:expensefirebase/utils/routers.dart';
@@ -87,7 +87,7 @@ class _HomePageState extends State<HomePage> {
 
                       return ListView(
                         children: [
-                          /*Container(
+                          Container(
                             height: 200.0,
                             padding: EdgeInsets.symmetric(
                               vertical: 10.0,
@@ -118,7 +118,7 @@ class _HomePageState extends State<HomePage> {
                                 lineBarsData: [
                                   LineChartBarData(
                                     // spots: getPlotPoints(snapshot.data!),
-                                    spots: getPlotPoints(snapshot.data!.docs),
+                                    spots: dataSet,
                                     isCurved: false,
                                     barWidth: 3,
                                     color: Colors.deepPurple,
@@ -134,8 +134,7 @@ class _HomePageState extends State<HomePage> {
                                 ],
                               ),
                             ),
-                          ),*/
-
+                          ),
                           Container(
                             width: MediaQuery.of(context).size.width * 0.9,
                             margin: EdgeInsets.all(12.0),
@@ -210,6 +209,7 @@ class _HomePageState extends State<HomePage> {
                               totalBalance = 0;
                               totalIncome = 0;
                               totalExpense = 0;
+                              dataSet.clear();
                               for (int i = 0; i < data.length; i++) {
                                 if (data[i].get("type") == "Income") {
                                   totalBalance +=
@@ -221,6 +221,18 @@ class _HomePageState extends State<HomePage> {
                                       int.parse(data[i].get("amount"));
                                   totalExpense +=
                                       int.parse(data[i].get("amount"));
+                                }
+
+                                if (data[i].get("type") == "Expense" &&
+                                    (DateTime.parse(data[i].get("date")))
+                                            .month ==
+                                        today.month) {
+                                  dataSet.add(FlSpot(
+                                      (DateTime.parse(data[i].get("date")))
+                                          .day
+                                          .toDouble(),
+                                      (int.parse(data[i].get("amount")))
+                                          .toDouble()));
                                 }
                               }
                               //log(totalBalance);
@@ -257,13 +269,13 @@ class _HomePageState extends State<HomePage> {
                                       ? incomeTile(
                                           txn.get("amount"),
                                           txn.get("note"),
-                                          txn.get("date"),
+                                          DateTime.parse(txn.get("date")),
                                           txn.get("type"),
                                           "Food")
                                       : expenseTile(
                                           txn.get("amount"),
                                           txn.get("note"),
-                                          txn.get("date"),
+                                          DateTime.parse(txn.get("date")),
                                           txn.get("type"),
                                           "Food"));
                             },
@@ -404,7 +416,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget expenseTile(
-      String value, String note, String date, String type, String category) {
+      String value, String note, DateTime date, String type, String category) {
+    String formattedDate = DateFormat.yMMMd().format(date);
     return Container(
       margin: EdgeInsets.fromLTRB(8, 12, 8, 12),
       padding: EdgeInsets.all(15),
@@ -475,7 +488,7 @@ class _HomePageState extends State<HomePage> {
                 width: 10,
               ),
               Text(
-                "$date",
+                "$formattedDate",
                 style: TextStyle(
                     fontSize: 20,
                     color: Colors.grey,
@@ -494,8 +507,9 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget incomeTile(
-      String value, String note, String date, String type, String category) {
+      String value, String note, DateTime date, String type, String category) {
     //container
+    String formattedDate = DateFormat.yMMMd().format(date);
     return Container(
       margin: EdgeInsets.fromLTRB(8, 12, 8, 12),
       padding: EdgeInsets.all(15),
@@ -534,7 +548,7 @@ class _HomePageState extends State<HomePage> {
                 width: 10,
               ),
               Text(
-                "$date",
+                "$formattedDate",
                 style: TextStyle(
                     fontSize: 20,
                     color: Colors.grey,
