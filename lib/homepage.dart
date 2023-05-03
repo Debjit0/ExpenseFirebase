@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:expensefirebase/constants/projectColors.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:expensefirebase/addtnx.dart';
@@ -12,6 +13,8 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
+
+import 'constants/projectColors.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
