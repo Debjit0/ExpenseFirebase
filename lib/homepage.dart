@@ -21,6 +21,7 @@ import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 
+import 'card.dart';
 import 'constants/projectColors.dart';
 
 class HomePage extends StatefulWidget {
@@ -51,6 +52,11 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: Text("Arise"),
         actions: [
+          IconButton(
+              onPressed: () {
+                nextPage(page: MyCard(), context: context);
+              },
+              icon: Icon(Icons.credit_card_outlined)),
           IconButton(
               onPressed: () {
                 nextPage(page: CategoryDisplay(), context: context);

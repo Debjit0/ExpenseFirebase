@@ -54,7 +54,7 @@ class _CategoryDisplayState extends State<CategoryDisplay> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Catrgories"),
+        title: Text("Categories"),
       ),
       body: SafeArea(
         child: LiquidPullToRefresh(

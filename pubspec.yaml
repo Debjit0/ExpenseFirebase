@@ -49,6 +49,7 @@ dependencies:
   flutter_sms: ^2.3.3
   sms: ^0.2.4
   permission_handler: ^10.2.0
+  flutter_credit_card: ^3.0.6
 
 dev_dependencies:
   flutter_test:
