@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:expensefirebase/homepage.dart';
 import 'package:expensefirebase/utils/routers.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +19,7 @@ class _AddTnxState extends State<AddTnx> {
   String type = "Expense";
   TextEditingController amtController = TextEditingController();
   TextEditingController noteController = TextEditingController();
-
+  String category = "Misc";
 //fefef
   @override
   Widget build(BuildContext context) {
@@ -73,6 +75,37 @@ class _AddTnxState extends State<AddTnx> {
                 "${selectedDate.day} / ${selectedDate.month}",
                 style: TextStyle(color: Colors.blueAccent),
               )),
+          (type == "Income")
+              ? Container()
+              : DropdownButton(
+                  hint: Text(
+                    category,
+                    style: TextStyle(color: Colors.blue),
+                  ),
+                  isExpanded: true,
+                  iconSize: 30.0,
+                  style: TextStyle(color: Colors.blue),
+                  items: ['Food', 'Travel', 'Shopping', 'Rent', 'Misc'].map(
+                    (val) {
+                      print(val);
+                      return DropdownMenuItem<String>(
+                        value: val,
+                        child: Text(val),
+                      );
+                    },
+                  ).toList(),
+                  onChanged: (val) {
+                    setState(
+                      () {
+                        if (type == "Income") {
+                          category = "Income";
+                        } else {
+                          category = val!;
+                        }
+                      },
+                    );
+                  },
+                ),
           ElevatedButton(
               onPressed: () {
                 TransactionProvider().addTnxDb(
@@ -80,7 +113,8 @@ class _AddTnxState extends State<AddTnx> {
                     note: noteController.text,
                     date: selectedDate
                         .toString() /*DateFormat.yMMMd().format(selectedDate),*/,
-                    type: type);
+                    type: type,
+                    category: category);
                 nextPageOnly(context: context, page: HomePage());
                 setState(() {});
               },

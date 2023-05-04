@@ -1,5 +1,12 @@
 import 'dart:math';
+import 'package:expensefirebase/allexpense.dart';
+import 'package:expensefirebase/allincomepage.dart';
+import 'package:expensefirebase/authscreen.dart';
+import 'package:expensefirebase/categorydisplay.dart';
 import 'package:expensefirebase/constants/projectColors.dart';
+import 'package:expensefirebase/provider/authProvider.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:expensefirebase/addtnx.dart';
@@ -30,6 +37,7 @@ class _HomePageState extends State<HomePage> {
   final CollectionReference tnx =
       FirebaseFirestore.instance.collection("All Transactions");
   Future<void> _handleRefresh() async {
+    setState(() {});
     return await Future.delayed(Duration(seconds: 1));
   }
 
@@ -37,48 +45,37 @@ class _HomePageState extends State<HomePage> {
   List<FlSpot> dataSet = [];
   DateTime today = DateTime.now();
 
-  List<FlSpot> getPlotPoints(entireData) {
-    dataSet = [];
-    entireData.forEach((key, value) {
-      if (value['type'] == "Expense" &&
-          (value['date'] as DateTime).month == today.month) {
-        dataSet.add(FlSpot((value['date'] as DateTime).day.toDouble(),
-            (value['amount'] as int).toDouble()));
-      }
-    });
-    return dataSet;
-  }
-
-  getTotalBalance(Map entireData) {
-    totalExpense = 0;
-    totalIncome = 0;
-    totalBalance = 0;
-    entireData.forEach((key, value) {
-      //print(value);
-      //print("Total Balance $totalBalance");
-      //print("Total Expense $totalExpense");
-      //print("Total Income $totalIncome");
-      if (value['type'] == 'Income') {
-        totalBalance += (value['amount'] as int);
-        totalIncome += (value['amount'] as int);
-      } else if (value['type'] == 'Expense') {
-        totalBalance -= (value['amount'] as int);
-        totalExpense += (value['amount'] as int);
-      }
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Arise")),
+      appBar: AppBar(
+        title: Text("Arise"),
+        actions: [
+          IconButton(
+              onPressed: () {
+                nextPage(page: CategoryDisplay(), context: context);
+              },
+              icon: Icon(Icons.category_outlined)),
+          IconButton(
+              onPressed: () {
+                AuthenticationProvider().signOut().then((value) {
+                  nextPageOnly(page: AuthScreen(), context: context);
+                });
+              },
+              icon: Icon(Icons.exit_to_app_outlined))
+        ],
+      ),
       body: SafeArea(
           child: LiquidPullToRefresh(
               height: 200,
               animSpeedFactor: 2,
               onRefresh: _handleRefresh,
               child: FutureBuilder(
-                future: tnx.doc(uid).collection('User Transactions').get(),
+                future: tnx
+                    .doc(uid)
+                    .collection('User Transactions')
+                    .orderBy("date", descending: true)
+                    .get(),
                 builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                   if (snapshot.hasData) {
                     if (snapshot.data!.docs.isEmpty) {
@@ -90,54 +87,6 @@ class _HomePageState extends State<HomePage> {
 
                       return ListView(
                         children: [
-                          Container(
-                            height: 200.0,
-                            padding: EdgeInsets.symmetric(
-                              vertical: 10.0,
-                              horizontal: 10.0,
-                            ),
-                            margin: EdgeInsets.all(
-                              12.0,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Color.fromARGB(255, 255, 255, 255),
-                              boxShadow: [
-                                new BoxShadow(
-                                  color: Color.fromARGB(255, 137, 137, 137),
-                                  blurRadius: 20.0,
-                                  offset: Offset(6, 6),
-                                ),
-                              ],
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(24)),
-                            ),
-                            child: LineChart(
-                              LineChartData(
-                                //maxX: 30,
-                                //minX: 1,
-                                borderData: FlBorderData(
-                                  show: false,
-                                ),
-                                lineBarsData: [
-                                  LineChartBarData(
-                                    // spots: getPlotPoints(snapshot.data!),
-                                    spots: dataSet,
-                                    isCurved: false,
-                                    barWidth: 3,
-                                    color: Colors.deepPurple,
-                                    showingIndicators: [200, 200, 90, 10],
-                                    dotData: FlDotData(
-                                      show: true,
-                                    ),
-                                    belowBarData: BarAreaData(
-                                      show: true,
-                                      color: Color.fromARGB(255, 201, 182, 255),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
                           Container(
                             width: MediaQuery.of(context).size.width * 0.9,
                             margin: EdgeInsets.all(12.0),
@@ -201,6 +150,67 @@ class _HomePageState extends State<HomePage> {
                                   ],
                                 ),
                               ),
+                            ),
+                          ),
+                          Container(
+                            height: 200.0,
+                            padding: EdgeInsets.symmetric(
+                              vertical: 10.0,
+                              horizontal: 10.0,
+                            ),
+                            margin: EdgeInsets.all(
+                              12.0,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Color.fromARGB(255, 255, 255, 255),
+                              boxShadow: [
+                                new BoxShadow(
+                                  color: Color.fromARGB(255, 137, 137, 137),
+                                  blurRadius: 20.0,
+                                  offset: Offset(6, 6),
+                                ),
+                              ],
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(24)),
+                            ),
+                            child: LineChart(
+                              LineChartData(
+                                //maxX: 30,
+                                //minX: 1,
+                                borderData: FlBorderData(
+                                  show: false,
+                                ),
+                                lineBarsData: [
+                                  LineChartBarData(
+                                    // spots: getPlotPoints(snapshot.data!),
+                                    spots: dataSet,
+                                    isCurved: false,
+                                    barWidth: 3,
+                                    color: Colors.deepPurple,
+                                    showingIndicators: [200, 200, 90, 10],
+                                    dotData: FlDotData(
+                                      show: true,
+                                    ),
+                                    belowBarData: BarAreaData(
+                                      show: true,
+                                      color: Color.fromARGB(255, 201, 182, 255),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          Container(
+                            padding: EdgeInsets.symmetric(horizontal: 10),
+                            child: Text(
+                              "Recent",
+                              style: GoogleFonts.lato(
+                                  fontSize: 32,
+                                  color: Color.fromARGB(255, 0, 0, 0),
+                                  fontWeight: FontWeight.bold),
                             ),
                           ),
                           ListView.builder(
@@ -280,8 +290,24 @@ class _HomePageState extends State<HomePage> {
                                           txn.get("note"),
                                           DateTime.parse(txn.get("date")),
                                           txn.get("type"),
-                                          "Food"));
+                                          txn.get("category")));
                             },
+                          ),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          Container(
+                            alignment: Alignment.center,
+                            child: Text(
+                              "A r i s e",
+                              style: GoogleFonts.lato(
+                                  fontSize: 70,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color.fromARGB(255, 225, 225, 225)),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 20,
                           ),
                         ],
                       );
@@ -326,7 +352,9 @@ class _HomePageState extends State<HomePage> {
           borderRadius: BorderRadius.circular(10)),
       //color: Colors.green,
       child: InkWell(
-        onTap: (() {}),
+        onTap: (() {
+          nextPage(page: AllIncome(), context: context);
+        }),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -376,7 +404,9 @@ class _HomePageState extends State<HomePage> {
           color: Color.fromARGB(255, 250, 150, 142),
           borderRadius: BorderRadius.circular(10)),
       child: InkWell(
-        onTap: (() {}),
+        onTap: (() {
+          nextPage(page: AllExpense(), context: context);
+        }),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -452,7 +482,7 @@ class _HomePageState extends State<HomePage> {
                   size: 28,
                   color: Colors.red,
                 ),
-              if (category == "Clothing")
+              if (category == "Shopping")
                 Icon(
                   Icons.shopping_bag_outlined,
                   size: 28,

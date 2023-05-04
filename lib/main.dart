@@ -1,4 +1,5 @@
 import 'package:expensefirebase/authscreen.dart';
+import 'package:expensefirebase/categorydisplay.dart';
 import 'package:expensefirebase/homepage.dart';
 import 'package:expensefirebase/splashscreen.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -19,7 +20,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
         title: 'Flutter Demo',
         theme: ThemeData(
-          primarySwatch: Colors.blue,
+          primarySwatch: Colors.deepPurple,
         ),
         home: SplashPage());
   }

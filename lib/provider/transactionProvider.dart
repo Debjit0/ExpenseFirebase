@@ -7,11 +7,13 @@ import 'package:firebase_storage/firebase_storage.dart';
 class TransactionProvider {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  void addTnxDb(
-      {required String? amt,
-      required String? note,
-      required String? date,
-      required String? type}) async {
+  void addTnxDb({
+    required String? amt,
+    required String? note,
+    required String? date,
+    required String? type,
+    required String? category,
+  }) async {
     CollectionReference _tnx = _firestore.collection("All Transactions");
     final uid = FirebaseAuth.instance.currentUser!.uid;
     try {
@@ -21,6 +23,7 @@ class TransactionProvider {
         "note": note,
         "date": date,
         "type": type,
+        "category": category,
       };
       await _tnx.doc(uid).collection("User Transactions").add(data);
     } catch (e) {
