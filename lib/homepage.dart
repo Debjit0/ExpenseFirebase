@@ -4,6 +4,7 @@ import 'package:expensefirebase/allincomepage.dart';
 import 'package:expensefirebase/authscreen.dart';
 import 'package:expensefirebase/categorydisplay.dart';
 import 'package:expensefirebase/constants/projectColors.dart';
+import 'package:expensefirebase/customPie.dart';
 import 'package:expensefirebase/provider/authProvider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -20,7 +21,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
-
+import 'package:pie_chart/pie_chart.dart';
 import 'card.dart';
 import 'constants/projectColors.dart';
 
@@ -90,6 +91,47 @@ class _HomePageState extends State<HomePage> {
                       );
                     } else {
                       final data = snapshot.data!.docs;
+                      int totExp = 0;
+                      int foodAmt = 0;
+                      int rentAmt = 0;
+                      int shoppingAmt = 0;
+                      int travelAmt = 0;
+                      int miscAmt = 0;
+                      double perFood = 0;
+                      double perTravel = 0;
+                      double perRent = 0;
+                      double perShopping = 0;
+                      double perMisc = 0;
+                      for (int i = 0; i < data.length; i++) {
+                        final txn = snapshot.data!.docs[i];
+                        if (txn.get("category") == "Food" &&
+                            txn.get("type") == "Expense") {
+                          foodAmt += int.parse(txn.get("amount"));
+                          totExp += int.parse(txn.get("amount"));
+                        } else if (txn.get("category") == "Travel" &&
+                            txn.get("type") == "Expense") {
+                          travelAmt += int.parse(txn.get("amount"));
+                          totExp += int.parse(txn.get("amount"));
+                        } else if (txn.get("category") == "Shopping" &&
+                            txn.get("type") == "Expense") {
+                          shoppingAmt += int.parse(txn.get("amount"));
+                          totExp += int.parse(txn.get("amount"));
+                        } else if (txn.get("category") == "Rent" &&
+                            txn.get("type") == "Expense") {
+                          rentAmt += int.parse(txn.get("amount"));
+                          totExp += int.parse(txn.get("amount"));
+                        } else if (txn.get("category") == "Misc" &&
+                            txn.get("type") == "Expense") {
+                          miscAmt += int.parse(txn.get("amount"));
+                          totExp += int.parse(txn.get("amount"));
+                        }
+                      }
+                      perFood = (foodAmt / totExp) * 100;
+                      perTravel = (travelAmt / totExp) * 100;
+                      perShopping = (shoppingAmt / totExp) * 100;
+                      perRent = (rentAmt / totExp) * 100;
+                      perMisc = (miscAmt / totExp) * 100;
+                      print("total $totExp");
 
                       return ListView(
                         children: [
@@ -204,6 +246,29 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                 ],
                               ),
+                            ),
+                          ),
+                          Container(
+                            //padding: EdgeInsets.symmetric(horizontal: 10),
+                            margin: EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 10),
+                            decoration: BoxDecoration(
+                              color: Color.fromARGB(255, 255, 255, 255),
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Color.fromARGB(255, 137, 137, 137),
+                                  blurRadius: 20.0,
+                                  offset: Offset(6, 6),
+                                ),
+                              ],
+                            ),
+                            child: CustomPie(
+                              perFood: perFood,
+                              perMisc: perMisc,
+                              perRent: perRent,
+                              perShopping: perShopping,
+                              perTravel: perTravel,
                             ),
                           ),
                           SizedBox(

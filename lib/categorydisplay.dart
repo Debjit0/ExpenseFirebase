@@ -52,119 +52,108 @@ class _CategoryDisplayState extends State<CategoryDisplay> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Categories"),
-      ),
-      body: SafeArea(
-        child: LiquidPullToRefresh(
-          onRefresh: _handleRefresh,
-          child: FutureBuilder(
-              future: tnx.doc(uid).collection('User Transactions').get(),
-              builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                if (snapshot.hasData) {
-                  if (snapshot.data!.docs.isEmpty) {
-                    return Center(child: Text("No Data"));
-                  } else {
-                    final data = snapshot.data!.docs;
-                    int totExp = 0;
-                    int foodAmt = 0;
-                    int rentAmt = 0;
-                    int shoppingAmt = 0;
-                    int travelAmt = 0;
-                    int miscAmt = 0;
-                    double perFood = 0;
-                    double perTravel = 0;
-                    double perRent = 0;
-                    double perShopping = 0;
-                    double perMisc = 0;
-                    for (int i = 0; i < data.length; i++) {
-                      final txn = snapshot.data!.docs[i];
-                      if (txn.get("category") == "Food" &&
-                          txn.get("type") == "Expense") {
-                        foodAmt += int.parse(txn.get("amount"));
-                        totExp += int.parse(txn.get("amount"));
-                      } else if (txn.get("category") == "Travel" &&
-                          txn.get("type") == "Expense") {
-                        travelAmt += int.parse(txn.get("amount"));
-                        totExp += int.parse(txn.get("amount"));
-                      } else if (txn.get("category") == "Shopping" &&
-                          txn.get("type") == "Expense") {
-                        shoppingAmt += int.parse(txn.get("amount"));
-                        totExp += int.parse(txn.get("amount"));
-                      } else if (txn.get("category") == "Rent" &&
-                          txn.get("type") == "Expense") {
-                        rentAmt += int.parse(txn.get("amount"));
-                        totExp += int.parse(txn.get("amount"));
-                      } else if (txn.get("category") == "Misc" &&
-                          txn.get("type") == "Expense") {
-                        miscAmt += int.parse(txn.get("amount"));
-                        totExp += int.parse(txn.get("amount"));
-                      }
-                    }
-                    perFood = (foodAmt / totExp) * 100;
-                    perTravel = (travelAmt / totExp) * 100;
-                    perShopping = (shoppingAmt / totExp) * 100;
-                    perRent = (rentAmt / totExp) * 100;
-                    perMisc = (miscAmt / totExp) * 100;
-                    print("total $totExp");
-                    return ListView(
-                      children: [
-                        /*Text(
-                          "Expenses in last 30 days",
-                          style: GoogleFonts.lato(
-                              fontSize: 32,
-                              color: Color.fromARGB(255, 0, 0, 0),
-                              fontWeight: FontWeight.bold),
-                        ),*/
-                        Container(
-                          //padding: EdgeInsets.symmetric(horizontal: 10),
-                          margin: EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 10),
-                          decoration: BoxDecoration(
-                            color: Color.fromARGB(255, 255, 255, 255),
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Color.fromARGB(255, 137, 137, 137),
-                                blurRadius: 20.0,
-                                offset: Offset(6, 6),
-                              ),
-                            ],
-                          ),
-                          child: PieChart(
-                            dataMap: {
-                              "Food": perFood,
-                              "Travel": perTravel,
-                              "Shopping": perShopping,
-                              "Rent": perRent,
-                              "Misc": perMisc
-                            },
-                          ),
-                        ),
-                        /*Container(
-                          margin: EdgeInsets.all(10),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.food_bank_outlined,
-                                color: Colors.green,
-                              ),
-                              Text("Food : $foodAmt")
-                            ],
-                          ),
-                        )*/
-                      ],
-                    );
-                  }
-                } else {
-                  return Center(
-                    child: CircularProgressIndicator(),
-                  );
+    return FutureBuilder(
+        future: tnx.doc(uid).collection('User Transactions').get(),
+        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (snapshot.hasData) {
+            if (snapshot.data!.docs.isEmpty) {
+              return Center(child: Text("No Data"));
+            } else {
+              final data = snapshot.data!.docs;
+              int totExp = 0;
+              int foodAmt = 0;
+              int rentAmt = 0;
+              int shoppingAmt = 0;
+              int travelAmt = 0;
+              int miscAmt = 0;
+              double perFood = 0;
+              double perTravel = 0;
+              double perRent = 0;
+              double perShopping = 0;
+              double perMisc = 0;
+              for (int i = 0; i < data.length; i++) {
+                final txn = snapshot.data!.docs[i];
+                if (txn.get("category") == "Food" &&
+                    txn.get("type") == "Expense") {
+                  foodAmt += int.parse(txn.get("amount"));
+                  totExp += int.parse(txn.get("amount"));
+                } else if (txn.get("category") == "Travel" &&
+                    txn.get("type") == "Expense") {
+                  travelAmt += int.parse(txn.get("amount"));
+                  totExp += int.parse(txn.get("amount"));
+                } else if (txn.get("category") == "Shopping" &&
+                    txn.get("type") == "Expense") {
+                  shoppingAmt += int.parse(txn.get("amount"));
+                  totExp += int.parse(txn.get("amount"));
+                } else if (txn.get("category") == "Rent" &&
+                    txn.get("type") == "Expense") {
+                  rentAmt += int.parse(txn.get("amount"));
+                  totExp += int.parse(txn.get("amount"));
+                } else if (txn.get("category") == "Misc" &&
+                    txn.get("type") == "Expense") {
+                  miscAmt += int.parse(txn.get("amount"));
+                  totExp += int.parse(txn.get("amount"));
                 }
-              }),
-        ),
-      ),
-    );
+              }
+              perFood = (foodAmt / totExp) * 100;
+              perTravel = (travelAmt / totExp) * 100;
+              perShopping = (shoppingAmt / totExp) * 100;
+              perRent = (rentAmt / totExp) * 100;
+              perMisc = (miscAmt / totExp) * 100;
+              print("total $totExp");
+              return ListView(
+                children: [
+                  /*Text(
+                      "Expenses in last 30 days",
+                      style: GoogleFonts.lato(
+                          fontSize: 32,
+                          color: Color.fromARGB(255, 0, 0, 0),
+                          fontWeight: FontWeight.bold),
+                    ),*/
+                  Container(
+                    //padding: EdgeInsets.symmetric(horizontal: 10),
+                    margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: Color.fromARGB(255, 255, 255, 255),
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Color.fromARGB(255, 137, 137, 137),
+                          blurRadius: 20.0,
+                          offset: Offset(6, 6),
+                        ),
+                      ],
+                    ),
+                    child: PieChart(
+                      dataMap: {
+                        "Food": perFood,
+                        "Travel": perTravel,
+                        "Shopping": perShopping,
+                        "Rent": perRent,
+                        "Misc": perMisc
+                      },
+                    ),
+                  ),
+                  /*Container(
+                      margin: EdgeInsets.all(10),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.food_bank_outlined,
+                            color: Colors.green,
+                          ),
+                          Text("Food : $foodAmt")
+                        ],
+                      ),
+                    )*/
+                ],
+              );
+            }
+          } else {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+        });
   }
 }
