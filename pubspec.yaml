@@ -46,8 +46,6 @@ dependencies:
   fluttertoast: ^8.2.1
   google_fonts: ^4.0.4
   pie_chart: ^5.3.2
-  flutter_sms: ^2.3.3
-  sms: ^0.2.4
   permission_handler: ^10.2.0
   flutter_credit_card: ^3.0.6
 
@@ -74,9 +72,8 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  assets:
+    - assets/images/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
