@@ -1,6 +1,3 @@
-import 'package:expensefirebase/authscreen.dart';
-import 'package:expensefirebase/categorydisplay.dart';
-import 'package:expensefirebase/homepage.dart';
 import 'package:expensefirebase/splashscreen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
